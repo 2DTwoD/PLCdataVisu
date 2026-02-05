@@ -72,14 +72,22 @@ def get_xy(plot_dict_item):
 def main():
     append_plot_dict('records/ПЛК/Переменная 1/05.02.2026 11-37-43-605 total 3600.trnd')
     append_plot_dict('records/ПЛК/Переменная 1/05.02.2026 11-30-24-997 total 3600.trnd')
+    append_plot_dict('records/ПЛК/Переменная 1/05.02.2026 11-44-59-563 total 3600.trnd')
+    append_plot_dict('records/ПЛК/Переменная 1/05.02.2026 11-52-12-944 total 3600.trnd')
     append_plot_dict('records/ПЛК/Переменная 2/05.02.2026 11-30-24-999 total 3600.trnd')
-    for _, val in plot_dict.items():
+    append_plot_dict('records/ПЛК/Переменная 9/05.02.2026 11-37-43-677 total 3600.trnd')
+    append_plot_dict('records/ПЛК/Переменная 10/05.02.2026 11-30-25-015 total 3600.trnd')
+    plt.figure(figsize=(12, 8))
+    for key, val in plot_dict.items():
         x_list, y_list = get_xy(val)
-        plt.plot(x_list, y_list)
+        plt.plot(x_list, y_list, label=key)
 
     plt.ylabel('значение')
     plt.xlabel('время')
     plt.gcf().autofmt_xdate()
+    plt.grid()
+    plt.legend(loc="upper right")
+    plt.tight_layout()
     plt.show()
 
 
