@@ -1,9 +1,22 @@
 import datetime
+import threading
+from tkinter import Tk
 
+
+
+import matplotlib
 import matplotlib.pyplot as plt
 
+from visu.trend_window import Trend
+
+matplotlib.use('TkAgg')
 
 plot_dict = {}
+
+win_width = 100
+win_height = 100
+
+version = "1.0"
 
 
 def get_data_from_file(file_path: str):
@@ -77,18 +90,31 @@ def main():
     append_plot_dict('records/ПЛК/Переменная 2/05.02.2026 11-30-24-999 total 3600.trnd')
     append_plot_dict('records/ПЛК/Переменная 9/05.02.2026 11-37-43-677 total 3600.trnd')
     append_plot_dict('records/ПЛК/Переменная 10/05.02.2026 11-30-25-015 total 3600.trnd')
-    plt.figure(figsize=(12, 8))
+    window = Tk()
+    title = 'PLC data visu'
+    title_with_version = f'{title}, v{version}'
+    window.geometry(f'{win_width}x{win_height}')
+    window.title(title_with_version)
+    window.resizable(False, False)
+    trend = Trend(window)
     for key, val in plot_dict.items():
         x_list, y_list = get_xy(val)
-        plt.plot(x_list, y_list, label=key)
+        trend.add_data(x_list, y_list, key)
 
-    plt.ylabel('значение')
-    plt.xlabel('время')
-    plt.gcf().autofmt_xdate()
-    plt.grid()
-    plt.legend(loc="upper right")
-    plt.tight_layout()
-    plt.show()
+    trend.show()
+
+    # frame_with_scroll = ScrolledFrame(window, height=win_height, width=win_width)
+    # main_panel = MainPanel(frame_with_scroll.canvas, title)
+    # frame_with_scroll.setMainPanel(main_panel)
+    #
+    # def on_close():
+    #     if messagebox.askokcancel('Выход', 'Закрыть приложение?'):
+    #         main_panel.on_close()
+    #         window.destroy()
+    #
+    # window.protocol("WM_DELETE_WINDOW", lambda: threading.Thread(target=on_close, daemon=True).start())
+
+    window.mainloop()
 
 
 if __name__ == '__main__':
