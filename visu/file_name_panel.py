@@ -3,10 +3,9 @@ from tkinter import ttk, LEFT, BOTH, messagebox
 
 class FileNamePanel(ttk.Frame):
     def __init__(self, parent, file_name: str, delete_action=lambda fnp: 0):
-        ttk.Frame.__init__(self, parent, padding=5, relief='solid')
+        ttk.Frame.__init__(self, parent)
 
         self.file_name = file_name
-
 
         def delete_command():
             if not messagebox.askyesno('Вопрос', f'Удалить строку "{file_name}"?'):

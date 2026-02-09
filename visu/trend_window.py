@@ -5,9 +5,8 @@ from matplotlib.figure import Figure
 
 
 class Trend:
-    def __init__(self, master, x_data: list = None, y_data: list = None, name: str = None, show_flag: bool = False):
+    def __init__(self, x_data: list = None, y_data: list = None, name: str = None, show_flag: bool = False):
         self._all_data = []
-        self.master = master
         if name is not None and x_data is not None and y_data is not None:
             self.add_data(x_data, y_data, name)
             if show_flag:
@@ -17,17 +16,24 @@ class Trend:
         self._all_data.append((x_data, y_data, name))
 
     def show(self):
-        top_level = Toplevel(master=self.master)
+        top_level = Toplevel()
         figure = Figure(figsize=(12, 8), dpi=100)
         axes = figure.add_subplot()
 
         axes.set_xlabel('время')
-        axes.set_ylabel('значение')
+        axes.set_xlabel('значение')
         axes.xaxis.grid()
         axes.yaxis.grid()
         title = ''
-        for data in self._all_data:
-            axes.plot(data[0], data[1], label=data[2])
+        # colors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple']
+        for index, data in enumerate(self._all_data):
+            # if index > 0:
+            #     axes = axes.twinx()
+
+            axes.plot(data[0], data[1], label=data[2])#, color=colors[index]
+            # axes.set_ylabel(data[2])
+            # axes.yaxis.label.set_color(colors[index])
+            # axes.tick_params(axis='y', colors=colors[index])
             title += data[2]
 
         figure.autofmt_xdate()
