@@ -20,8 +20,8 @@ class Trend:
         figure = Figure(figsize=(12, 8), dpi=100)
         axes = figure.add_subplot()
 
-        axes.set_xlabel('время')
-        axes.set_xlabel('значение')
+        axes.set_xlabel('Время')
+        axes.set_xlabel('Значение')
         axes.xaxis.grid()
         axes.yaxis.grid()
         new_title = title is None

@@ -18,7 +18,7 @@ class FileNamePanel(ttk.Frame):
             file_name_label_text = f'{file_name[:70]}...{file_name[len(file_name) - 70:]}'
 
         file_name_label = ttk.Label(self, text=file_name_label_text)
-        delete_button = ttk.Button(self, text='Удалить', command=delete_command)
+        delete_button = ttk.Button(self, text='- Удалить -', command=delete_command)
 
         file_name_label.pack(side=LEFT, padx=1)
         delete_button.pack(side=RIGHT)

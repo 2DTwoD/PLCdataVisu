@@ -22,13 +22,13 @@ def _sort_fun(item):
 
 
 class TrendPanel(ttk.Frame):
-    def __init__(self, parent, name='График', delete_action=lambda tp: 0):
+    def __init__(self, parent, name='График', delete_action=lambda tp: 0, update_main_panel_action=lambda: 0):
         ttk.Frame.__init__(self, parent, padding=10, relief='solid')
 
         self._plot_dict = {}
+        self.update_main_panel_action = update_main_panel_action
 
         self._file_name_panels = OrderedSet()
-        self.delete_action = delete_action
 
         self._name_var = StringVar()
         self._name_var.set(name)
@@ -42,18 +42,20 @@ class TrendPanel(ttk.Frame):
             self.destroy()
 
         button_frame = ttk.Frame(self)
-        add_file_button = ttk.Button(button_frame, text='Добавить файлы', command=self._add_command)
-        remove_all_file_names_button = ttk.Button(button_frame, text='Удалить файлы из списка',
+        self.add_file_button = ttk.Button(button_frame, text='+ Добавить файлы +', command=self._add_command)
+        self.remove_all_file_names_button = ttk.Button(button_frame, text='- Очистить список файлов -',
                                                   command=self._remove_all_file_names)
-        build_trend_button = ttk.Button(button_frame, text='Построить график', command=self.build_trend)
-        remove_trend_button = ttk.Button(button_frame, text='Удалить график', command=delete_command)
+        self.build_trend_button = ttk.Button(button_frame, text='Построить график', command=self.build_trend)
+        self.remove_trend_button = ttk.Button(button_frame, text='- Удалить график -', command=delete_command)
 
         name_entry.pack(side=TOP, pady=5)
         button_frame.pack(side=BOTTOM, pady=5)
-        add_file_button.grid(row=0, column=0, sticky='EW')
-        remove_all_file_names_button.grid(row=0, column=1, sticky='EW')
-        build_trend_button.grid(row=1, column=0, sticky='EW')
-        remove_trend_button.grid(row=1, column=1, sticky='EW')
+        self.add_file_button.grid(row=0, column=0, sticky='EW')
+        self.remove_all_file_names_button.grid(row=0, column=1, sticky='EW')
+        self.build_trend_button.grid(row=1, column=0, sticky='EW')
+        self.remove_trend_button.grid(row=1, column=1, sticky='EW')
+
+        self._update_buttons()
 
     def _add_command(self):
         file_names = askopenfilename(multiple=True, filetypes=(("Файлы трендов", "*.trnd"), ))
@@ -61,10 +63,16 @@ class TrendPanel(ttk.Frame):
             if file_name in map(lambda i: i.file_name, self._file_name_panels):
                 print(True)
                 continue
-            file_name_panel = FileNamePanel(self, file_name,
-                                            delete_action=lambda fnp: self._file_name_panels.remove(fnp))
+
+            def delete_action(fnp):
+                self._file_name_panels.remove(fnp)
+                self._update_buttons()
+
+            file_name_panel = FileNamePanel(parent=self, file_name=file_name, delete_action=delete_action)
+
             self._file_name_panels.add(file_name_panel)
             file_name_panel.pack(fill=BOTH, pady=2)
+        self._update_buttons()
 
     def _remove_all_file_names(self, ask_flag=True):
         if ask_flag and not messagebox.askyesno('Вопрос', 'Очистить список файлов?'):
@@ -72,6 +80,7 @@ class TrendPanel(ttk.Frame):
         for file_name_panel in self._file_name_panels:
             file_name_panel.destroy()
         self._file_name_panels.clear()
+        self._update_buttons()
 
     def get_name(self):
         return self._name_var.get()
@@ -112,3 +121,12 @@ class TrendPanel(ttk.Frame):
             trend.add_data(x_list, y_list, key)
 
         trend.show(title=self._name_var.get())
+
+    def _update_buttons(self):
+        st = 'normal' if len(self._file_name_panels) > 0 else 'disable'
+        self.remove_all_file_names_button.config(state=st)
+        self.build_trend_button.config(state=st)
+        self.update_main_panel_action()
+
+    def is_empty(self):
+        return len(self._file_name_panels) == 0
