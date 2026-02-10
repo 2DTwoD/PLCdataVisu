@@ -11,7 +11,7 @@ class MainPanel(ttk.Frame):
         ttk.Frame.__init__(self, parent)
 
         self.trend_panels_frame = ttk.Frame(self, relief='solid', padding=5)
-        place_holder = ttk.Frame(self.trend_panels_frame)
+        title_label = ttk.Label(self.trend_panels_frame, text='Графики:', foreground='gray')
 
         self.trend_panels = OrderedSet()
 
@@ -21,7 +21,7 @@ class MainPanel(ttk.Frame):
         delete_trends_button = ttk.Button(buttons_frame, text='Удалить все графики', command=self._delete_all_trends)
 
         self.trend_panels_frame.pack(fill=X)
-        place_holder.pack()
+        title_label.pack()
 
         buttons_frame.pack(side=BOTTOM)
         add_trend_button.pack(side=LEFT)
@@ -38,7 +38,7 @@ class MainPanel(ttk.Frame):
         else:
             index = int(search_result.group()) + 1
             trend_name = trend_name[:search_result.start()] + str(index)
-        trend_panel = TrendPanel(self.trend_panels_frame, trend_name)
+        trend_panel = TrendPanel(self.trend_panels_frame, trend_name, lambda tp: self.trend_panels.remove(tp))
         self.trend_panels.add(trend_panel)
         trend_panel.pack(fill=X, pady=5)
 
@@ -46,7 +46,8 @@ class MainPanel(ttk.Frame):
         if not messagebox.askyesno('Вопрос', 'Очистить список трендов?'):
             return
         for trend_panel in self.trend_panels:
-            trend_panel.remove_trend(ask_flag=False)
+            trend_panel.destroy()
+        self.trend_panels.clear()
 
     def _build_all_trends(self):
         for trend_panel in self.trend_panels:

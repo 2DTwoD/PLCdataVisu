@@ -15,7 +15,7 @@ class Trend:
     def add_data(self, x_data: list, y_data: list, name: str):
         self._all_data.append((x_data, y_data, name))
 
-    def show(self):
+    def show(self, title: str = None):
         top_level = Toplevel()
         figure = Figure(figsize=(12, 8), dpi=100)
         axes = figure.add_subplot()
@@ -24,7 +24,9 @@ class Trend:
         axes.set_xlabel('значение')
         axes.xaxis.grid()
         axes.yaxis.grid()
-        title = ''
+        new_title = title is None
+        if new_title:
+            title = ''
         # colors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple']
         for index, data in enumerate(self._all_data):
             # if index > 0:
@@ -34,8 +36,10 @@ class Trend:
             # axes.set_ylabel(data[2])
             # axes.yaxis.label.set_color(colors[index])
             # axes.tick_params(axis='y', colors=colors[index])
-            title += data[2]
+            if new_title:
+                title += data[2]
 
+        figure.suptitle(title)
         figure.autofmt_xdate()
         figure.tight_layout()
         figure.legend(loc="upper right")
