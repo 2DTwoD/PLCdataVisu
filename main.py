@@ -8,12 +8,11 @@ from visu.main_panel import MainPanel
 
 matplotlib.use('TkAgg')
 
-plot_dict = {}
-
 win_width = 900
 win_height = 900
 
 version = "1.0"
+
 
 def main():
     window = Tk()
@@ -24,11 +23,12 @@ def main():
     window.resizable(False, False)
 
     frame_with_scroll = ScrolledFrame(window, height=win_height, width=win_width)
-    main_panel = MainPanel(frame_with_scroll.canvas)
+    main_panel = MainPanel(frame_with_scroll.canvas, title)
     frame_with_scroll.setMainPanel(main_panel)
 
     def on_close():
         if messagebox.askokcancel('Выход', 'Закрыть приложение?'):
+            main_panel.on_close()
             window.destroy()
 
     window.protocol("WM_DELETE_WINDOW", lambda: threading.Thread(target=on_close, daemon=True).start())

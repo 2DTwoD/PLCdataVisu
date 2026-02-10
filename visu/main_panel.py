@@ -3,20 +3,22 @@ from tkinter import ttk, X, messagebox, BOTTOM
 
 from ordered_set import OrderedSet
 
+from misc.file_work import save_config, read_config
 from visu.trend_panel import TrendPanel
 
 
 class MainPanel(ttk.Frame):
-    def __init__(self, parent):
+    def __init__(self, parent, title:str):
         ttk.Frame.__init__(self, parent)
 
         self._trend_panels_frame = ttk.Frame(self, relief='solid', padding=5)
         title_label = ttk.Label(self._trend_panels_frame, text='Графики:', foreground='gray')
 
         self._trend_panels = OrderedSet()
+        self.title = title
 
         buttons_frame = ttk.Frame(self, padding=10)
-        self.add_trend_button = ttk.Button(buttons_frame, text='+ Добавить график +', command=self._add_trend)
+        self.add_trend_button = ttk.Button(buttons_frame, text='+ Добавить график +', command=self._add_new_trend)
         self.delete_trends_button = ttk.Button(buttons_frame, text='- Удалить все графики -', command=self._delete_all_trends)
         self.build_trend = ttk.Button(buttons_frame, text='Построить все графики', command=self._build_all_trends)
 
@@ -28,10 +30,16 @@ class MainPanel(ttk.Frame):
         self.delete_trends_button.grid(row=0, column=1)
         self.build_trend.grid(row=1, column=0, columnspan=2, sticky='EW')
 
+        config, error = read_config(f'{title}.cfg')
+        if error != '':
+            messagebox.showerror('Ошибка при чтении .cfg', error)
+        for key, value in config.items():
+            self._add_trend(key, value)
+
         self._update_delete_trends_button()
         self._update_build_all_button()
 
-    def _add_trend(self):
+    def _add_new_trend(self):
         trend_name = 'График'
 
         if len(self._trend_panels) > 0:
@@ -43,13 +51,17 @@ class MainPanel(ttk.Frame):
             index = int(search_result.group()) + 1
             trend_name = trend_name[:search_result.start()] + str(index)
 
+        self._add_trend(trend_name)
+
+    def _add_trend(self, trend_name, file_names=None):
         def delete_action(tp):
             self._trend_panels.remove(tp)
             self._update_delete_trends_button()
             self._update_build_all_button()
 
         trend_panel = TrendPanel(parent=self._trend_panels_frame, name=trend_name,
-                                 delete_action=delete_action, update_main_panel_action=self._update_build_all_button)
+                                 delete_action=delete_action, update_main_panel_action=self._update_build_all_button,
+                                 file_names=file_names)
         self._trend_panels.add(trend_panel)
         trend_panel.pack(fill=X, pady=5)
         self._update_delete_trends_button()
@@ -65,6 +77,8 @@ class MainPanel(ttk.Frame):
         self._update_build_all_button()
 
     def _build_all_trends(self):
+        if not messagebox.askyesno('Вопрос', 'Построить все графики?'):
+            return
         for trend_panel in self._trend_panels:
             trend_panel.build_trend()
 
@@ -76,3 +90,12 @@ class MainPanel(ttk.Frame):
         for trend_panel in self._trend_panels:
             empty &= trend_panel.is_empty()
         self.build_trend.config(state='disable' if empty else 'normal')
+
+    def on_close(self):
+        result = {}
+        for trend_panel in self._trend_panels:
+            result[trend_panel.get_name()] = trend_panel.get_file_names()
+        error = save_config(f'{self.title}.cfg', result)
+        if error != '':
+            messagebox.showerror('Ошибка при записи .cfg', error)
+

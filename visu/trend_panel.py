@@ -22,7 +22,8 @@ def _sort_fun(item):
 
 
 class TrendPanel(ttk.Frame):
-    def __init__(self, parent, name='График', delete_action=lambda tp: 0, update_main_panel_action=lambda: 0):
+    def __init__(self, parent, name='График', delete_action=lambda tp: 0,
+                 update_main_panel_action=lambda: 0, file_names=None):
         ttk.Frame.__init__(self, parent, padding=10, relief='solid')
 
         self._plot_dict = {}
@@ -55,10 +56,16 @@ class TrendPanel(ttk.Frame):
         self.build_trend_button.grid(row=1, column=0, sticky='EW')
         self.remove_trend_button.grid(row=1, column=1, sticky='EW')
 
+        if file_names is not None:
+            self._add_file_names(file_names)
+
         self._update_buttons()
 
     def _add_command(self):
         file_names = askopenfilename(multiple=True, filetypes=(("Файлы трендов", "*.trnd"), ))
+        self._add_file_names(file_names)
+
+    def _add_file_names(self, file_names):
         for file_name in file_names:
             if file_name in map(lambda i: i.file_name, self._file_name_panels):
                 print(True)
@@ -130,3 +137,9 @@ class TrendPanel(ttk.Frame):
 
     def is_empty(self):
         return len(self._file_name_panels) == 0
+
+    def get_file_names(self):
+        result = []
+        for file_name_panel in self._file_name_panels:
+            result.append(file_name_panel.file_name)
+        return result
