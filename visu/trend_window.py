@@ -15,34 +15,41 @@ class Trend:
     def add_data(self, x_data: list, y_data: list, name: str):
         self._all_data.append((x_data, y_data, name))
 
-    def show(self, title: str = None):
+    def show(self, title: str = None, separately: bool = False):
+        # self._all_data = [([1, 2, 3], [100, 200, 300], 'var1'), ([1, 2.5, 3], [400, 600, 500], 'var2'), ([1, 1.6, 3], [1000, 900, 100], 'var3'), ([1, 2.2, 3], [0, 2, 3], 'var4')]
         top_level = Toplevel()
         figure = Figure(figsize=(12, 8), dpi=100)
-        axes = figure.add_subplot()
-
-        axes.set_xlabel('Время')
-        axes.set_xlabel('Значение')
-        axes.xaxis.grid()
-        axes.yaxis.grid()
-        new_title = title is None
-        if new_title:
-            title = ''
-        # colors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple']
+        if separately:
+            axes = figure.subplots(len(self._all_data), 1, sharex=True)
+        else:
+            axes = figure.add_subplot()
+        y_lab = ''
         for index, data in enumerate(self._all_data):
-            # if index > 0:
-            #     axes = axes.twinx()
-
-            axes.plot(data[0], data[1], label=data[2])#, color=colors[index]
+            if separately:
+                axes[index].plot(data[0], data[1], label=data[2])
+                axes[index].set_xlabel('Время')
+                axes[index].set_ylabel(data[2])
+                axes[index].grid()
+                axes[index].set_ylabel(data[2])
+            else:
+                axes.plot(data[0], data[1], label=data[2])
             # axes.set_ylabel(data[2])
             # axes.yaxis.label.set_color(colors[index])
             # axes.tick_params(axis='y', colors=colors[index])
-            if new_title:
-                title += data[2]
+            y_lab += f'{data[2]}; '
+
+        if not separately:
+            axes.set_xlabel('Время')
+            axes.set_ylabel(y_lab)
+            axes.grid()
+            figure.legend(loc="upper right")
+
+        if title is None:
+            title = y_lab
 
         figure.suptitle(title)
         figure.autofmt_xdate()
         figure.tight_layout()
-        figure.legend(loc="upper right")
 
         canvas = FigureCanvasTkAgg(figure, top_level)
         canvas.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=True)
