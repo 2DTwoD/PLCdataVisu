@@ -33,7 +33,7 @@ class TrendPanel(ttk.Frame):
 
         self._name_var = StringVar()
         self._name_var.set(name)
-        name_entry = ttk.Entry(self, textvariable=self._name_var)
+        name_entry = ttk.Entry(self, textvariable=self._name_var, justify='center')
 
         self._separate_var = IntVar()
         separate_box = ttk.Checkbutton(self, text='Построить для разных переменных отдельно',
@@ -54,7 +54,7 @@ class TrendPanel(ttk.Frame):
         self.build_trend_button = ttk.Button(button_frame, text='Построить график', command=self.build_trend)
         self.remove_trend_button = ttk.Button(button_frame, text='- Удалить график -', command=delete_command)
 
-        name_entry.pack(side=TOP, pady=5)
+        name_entry.pack(side=TOP, pady=5, fill=BOTH)
         separate_box.pack(side=TOP, pady=5)
         button_frame.pack(side=BOTTOM, pady=5)
         self.add_file_button.grid(row=0, column=0, sticky='EW')

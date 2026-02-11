@@ -54,13 +54,12 @@ class Trend:
                 if len(self._all_data) > 1:
                     figure.legend(loc="upper right")
 
-            # axes.set_xlabel('Время', fontsize=middle_font_size)
             axes.tick_params(axis='x', labelsize=small_font_size)
 
             formatter = DateFormatter('%d.%m.%Y\n%H:%M:%S.%f')
             axes.xaxis.set_major_formatter(formatter)
 
-            if title is None:
+            if title is None or title.strip() == '':
                 title = y_lab
 
             figure.suptitle(title)
