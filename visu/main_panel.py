@@ -8,7 +8,7 @@ from visu.trend_panel import TrendPanel
 
 
 class MainPanel(ttk.Frame):
-    def __init__(self, parent, title:str):
+    def __init__(self, parent, title: str):
         ttk.Frame.__init__(self, parent)
 
         self._trend_panels_frame = ttk.Frame(self, relief='solid', padding=5)
@@ -31,10 +31,14 @@ class MainPanel(ttk.Frame):
         self.build_trend.grid(row=1, column=0, columnspan=2, sticky='EW')
 
         config, error = read_config(f'{title}.cfg')
+        if error == '':
+            try:
+                for key, value in config.items():
+                    self._add_trend(key, value)
+            except Exception as e:
+                error = str(e)
         if error != '':
-            messagebox.showerror('Ошибка при чтении .cfg', error)
-        for key, value in config.items():
-            self._add_trend(key, value)
+            messagebox.showerror('Ошибка',  f'Ошибка при чтении {title}.cfg: {error}')
 
         self._update_delete_trends_button()
         self._update_build_all_button()
@@ -53,7 +57,7 @@ class MainPanel(ttk.Frame):
 
         self._add_trend(trend_name)
 
-    def _add_trend(self, trend_name, file_names=None):
+    def _add_trend(self, trend_name, config=None):
         def delete_action(tp):
             self._trend_panels.remove(tp)
             self._update_delete_trends_button()
@@ -61,7 +65,7 @@ class MainPanel(ttk.Frame):
 
         trend_panel = TrendPanel(parent=self._trend_panels_frame, name=trend_name,
                                  delete_action=delete_action, update_main_panel_action=self._update_build_all_button,
-                                 file_names=file_names)
+                                 config=config)
         self._trend_panels.add(trend_panel)
         trend_panel.pack(fill=X, pady=5)
         self._update_delete_trends_button()
@@ -94,8 +98,7 @@ class MainPanel(ttk.Frame):
     def on_close(self):
         result = {}
         for trend_panel in self._trend_panels:
-            result[trend_panel.get_name()] = trend_panel.get_file_names()
+            result[trend_panel.get_name()] = (trend_panel.get_file_names(), trend_panel.get_separate())
         error = save_config(f'{self.title}.cfg', result)
         if error != '':
-            messagebox.showerror('Ошибка при записи .cfg', error)
-
+            messagebox.showerror('Ошибка', f'Ошибка при чтении {self.title}.cfg: {error}')

@@ -7,6 +7,7 @@ from visu.elements.scrolled_frame import ScrolledFrame
 from visu.main_panel import MainPanel
 
 matplotlib.use('TkAgg')
+# matplotlib.rc('font', size=9)
 
 win_width = 900
 win_height = 900

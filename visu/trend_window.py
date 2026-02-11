@@ -1,7 +1,12 @@
-from tkinter import Toplevel, BOTH, BOTTOM, TOP
+from tkinter import Toplevel, BOTH, BOTTOM, TOP, messagebox
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from matplotlib.dates import DateFormatter
 from matplotlib.figure import Figure
+from matplotlib.pyplot import get_cmap
+
+middle_font_size = 9
+small_font_size = 8
 
 
 class Trend:
@@ -15,47 +20,61 @@ class Trend:
     def add_data(self, x_data: list, y_data: list, name: str):
         self._all_data.append((x_data, y_data, name))
 
-    def show(self, title: str = None, separately: bool = False):
-        # self._all_data = [([1, 2, 3], [100, 200, 300], 'var1'), ([1, 2.5, 3], [400, 600, 500], 'var2'), ([1, 1.6, 3], [1000, 900, 100], 'var3'), ([1, 2.2, 3], [0, 2, 3], 'var4')]
-        top_level = Toplevel()
-        figure = Figure(figsize=(12, 8), dpi=100)
-        if separately:
-            axes = figure.subplots(len(self._all_data), 1, sharex=True)
-        else:
-            axes = figure.add_subplot()
-        y_lab = ''
-        for index, data in enumerate(self._all_data):
+    def show(self, title: str = None, separately: bool = True):
+        try:
+            if len(self._all_data) == 0:
+                raise Exception('Нет данных для графика')
+
+            top_level = Toplevel()
+            figure = Figure(figsize=(12, 8))
+            figure.patch.set_facecolor((0.941, 0.941, 0.941))
+
+            separately &= len(self._all_data) > 1
+
             if separately:
-                axes[index].plot(data[0], data[1], label=data[2])
-                axes[index].set_xlabel('Время')
-                axes[index].set_ylabel(data[2])
-                axes[index].grid()
-                axes[index].set_ylabel(data[2])
+                axes_list = figure.subplots(len(self._all_data), sharex=True)
             else:
-                axes.plot(data[0], data[1], label=data[2])
-            # axes.set_ylabel(data[2])
-            # axes.yaxis.label.set_color(colors[index])
-            # axes.tick_params(axis='y', colors=colors[index])
-            y_lab += f'{data[2]}; '
+                axes_list = [figure.add_subplot()]
+            axes = axes_list[0]
 
-        if not separately:
-            axes.set_xlabel('Время')
-            axes.set_ylabel(y_lab)
-            axes.grid()
-            figure.legend(loc="upper right")
+            y_lab = ''
+            cmap = get_cmap("tab10")
 
-        if title is None:
-            title = y_lab
+            for index, data in enumerate(self._all_data):
+                if separately:
+                    axes = axes_list[index]
+                    axes.set_ylabel(data[2], fontsize=middle_font_size)
+                    axes.grid()
+                axes.plot(data[0], data[1], label=data[2], color=cmap(index))
+                y_lab += f'{data[2]}; '
 
-        figure.suptitle(title)
-        figure.autofmt_xdate()
-        figure.tight_layout()
+            if not separately:
+                axes.set_ylabel(y_lab, fontsize=middle_font_size)
+                axes.grid()
+                if len(self._all_data) > 1:
+                    figure.legend(loc="upper right")
 
-        canvas = FigureCanvasTkAgg(figure, top_level)
-        canvas.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=True)
+            # axes.set_xlabel('Время', fontsize=middle_font_size)
+            axes.tick_params(axis='x', labelsize=small_font_size)
 
-        toolbar = NavigationToolbar2Tk(canvas, top_level)
-        toolbar.update()
-        canvas._tkcanvas.pack(side=TOP, fill=BOTH, expand=True)
+            formatter = DateFormatter('%d.%m.%Y\n%H:%M:%S.%f')
+            axes.xaxis.set_major_formatter(formatter)
 
-        top_level.title(title)
+            if title is None:
+                title = y_lab
+
+            figure.suptitle(title)
+            # figure.autofmt_xdate()
+            figure.tight_layout()
+
+            canvas = FigureCanvasTkAgg(figure, top_level)
+            canvas.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=True)
+
+            toolbar = NavigationToolbar2Tk(canvas, top_level)
+            toolbar.update()
+            canvas._tkcanvas.pack(side=TOP, fill=BOTH, expand=True)
+
+            top_level.title(title)
+
+        except Exception as e:
+            messagebox.showerror('Ошибка', f'Ошибка при построении графика {title}: {str(e)}')

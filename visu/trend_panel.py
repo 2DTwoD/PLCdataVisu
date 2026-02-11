@@ -1,5 +1,5 @@
-from tkinter import ttk, messagebox, BOTTOM, StringVar, TOP, BOTH
-from tkinter.filedialog import askopenfilename
+from tkinter import ttk, messagebox, BOTTOM, StringVar, TOP, BOTH, IntVar
+from tkinter.filedialog import askopenfilenames
 
 from ordered_set import OrderedSet
 
@@ -23,7 +23,7 @@ def _sort_fun(item):
 
 class TrendPanel(ttk.Frame):
     def __init__(self, parent, name='График', delete_action=lambda tp: 0,
-                 update_main_panel_action=lambda: 0, file_names=None):
+                 update_main_panel_action=lambda: 0, config=None):
         ttk.Frame.__init__(self, parent, padding=10, relief='solid')
 
         self._plot_dict = {}
@@ -35,6 +35,11 @@ class TrendPanel(ttk.Frame):
         self._name_var.set(name)
         name_entry = ttk.Entry(self, textvariable=self._name_var)
 
+        self._separate_var = IntVar()
+        separate_box = ttk.Checkbutton(self, text='Построить для разных переменных отдельно',
+                                       variable=self._separate_var,
+                                       onvalue=1, offvalue=0)
+
         def delete_command():
             if not messagebox.askyesno('Вопрос', f'Удалить график "{name}"?'):
                 return
@@ -45,24 +50,26 @@ class TrendPanel(ttk.Frame):
         button_frame = ttk.Frame(self)
         self.add_file_button = ttk.Button(button_frame, text='+ Добавить файлы +', command=self._add_command)
         self.remove_all_file_names_button = ttk.Button(button_frame, text='- Очистить список файлов -',
-                                                  command=self._remove_all_file_names)
+                                                       command=self._remove_all_file_names)
         self.build_trend_button = ttk.Button(button_frame, text='Построить график', command=self.build_trend)
         self.remove_trend_button = ttk.Button(button_frame, text='- Удалить график -', command=delete_command)
 
         name_entry.pack(side=TOP, pady=5)
+        separate_box.pack(side=TOP, pady=5)
         button_frame.pack(side=BOTTOM, pady=5)
         self.add_file_button.grid(row=0, column=0, sticky='EW')
         self.remove_all_file_names_button.grid(row=0, column=1, sticky='EW')
         self.build_trend_button.grid(row=1, column=0, sticky='EW')
         self.remove_trend_button.grid(row=1, column=1, sticky='EW')
 
-        if file_names is not None:
-            self._add_file_names(file_names)
+        if config is not None:
+            self._add_file_names(config[0])
+            self._separate_var.set(int(config[1]))
 
         self._update_buttons()
 
     def _add_command(self):
-        file_names = askopenfilename(multiple=True, filetypes=(("Файлы трендов", "*.trnd"), ))
+        file_names = askopenfilenames(filetypes=(("Файлы трендов", "*.trnd"),))
         self._add_file_names(file_names)
 
     def _add_file_names(self, file_names):
@@ -95,7 +102,7 @@ class TrendPanel(ttk.Frame):
     def _append_plot_dict(self, file_name: str):
         data, error = get_data_from_file(file_name)
         if error != '':
-            messagebox.showerror('Ошибка', error)
+            messagebox.showerror('Ошибка', f'Ошибка при чтении файла тренда "{file_name}": {error}')
             return error
         try:
             name = f"{data['ПЛК']}/{data['Переменная']}"
@@ -127,7 +134,7 @@ class TrendPanel(ttk.Frame):
             x_list, y_list = _get_xy(val)
             trend.add_data(x_list, y_list, key)
 
-        trend.show(title=self._name_var.get())
+        trend.show(title=self._name_var.get(), separately=self.get_separate())
 
     def _update_buttons(self):
         st = 'normal' if len(self._file_name_panels) > 0 else 'disable'
@@ -143,3 +150,6 @@ class TrendPanel(ttk.Frame):
         for file_name_panel in self._file_name_panels:
             result.append(file_name_panel.file_name)
         return result
+
+    def get_separate(self):
+        return self._separate_var.get() == 1
