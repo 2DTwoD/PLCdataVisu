@@ -45,7 +45,7 @@ class Trend:
                     axes = axes_list[index]
                     axes.set_ylabel(data[2], fontsize=middle_font_size)
                     axes.grid()
-                    axes.tick_params(axis='x', labelbottom=True, labelsize=small_font_size)
+                    # axes.tick_params(axis='x', labelbottom=True, labelsize=small_font_size)
                 axes.plot(data[0], data[1], label=data[2], color=cmap(index))
                 y_lab += f'{data[2]}; '
 
@@ -54,7 +54,8 @@ class Trend:
                 axes.grid()
                 if len(self._all_data) > 1:
                     figure.legend(loc="upper right")
-                axes.tick_params(axis='x', labelsize=small_font_size)
+
+            axes.tick_params(axis='x', labelsize=small_font_size)
 
             formatter = DateFormatter('%d.%m.%Y\n%H:%M:%S.%f')
             axes.xaxis.set_major_formatter(formatter)
