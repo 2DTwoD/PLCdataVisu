@@ -4,6 +4,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.dates import DateFormatter
 from matplotlib.figure import Figure
 from matplotlib.pyplot import get_cmap
+from matplotlib.ticker import MaxNLocator
 
 middle_font_size = 9
 small_font_size = 8
@@ -56,8 +57,9 @@ class Trend:
                     figure.legend(loc="upper right")
 
             axes.tick_params(axis='x', labelsize=small_font_size)
+            axes.xaxis.set_major_locator(MaxNLocator(nbins=10))
 
-            formatter = DateFormatter('%d.%m.%Y\n%H:%M:%S.%f')
+            formatter = DateFormatter('%H:%M:%S.%f\n%d.%m.%Y')
             axes.xaxis.set_major_formatter(formatter)
 
             if title is None or title.strip() == '':
@@ -66,6 +68,7 @@ class Trend:
             figure.suptitle(title)
             # figure.autofmt_xdate()
             figure.tight_layout()
+            figure.subplots_adjust(hspace=0)
 
             canvas = FigureCanvasTkAgg(figure, top_level)
             canvas.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=True)

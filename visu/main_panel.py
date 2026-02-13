@@ -12,7 +12,7 @@ class MainPanel(ttk.Frame):
         ttk.Frame.__init__(self, parent)
 
         self._trend_panels_frame = ttk.Frame(self, relief='solid', padding=5)
-        title_label = ttk.Label(self._trend_panels_frame, text='Графики:', foreground='gray')
+        title_label = ttk.Label(self._trend_panels_frame, text='Графики:')
 
         self._trend_panels = OrderedSet()
         self.title = title
