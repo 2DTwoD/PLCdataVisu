@@ -11,10 +11,12 @@ from visu.trend_window import Trend
 def _get_xy(items):
     x_list = []
     y_list = []
+    status_list = []
     for item in items:
         x_list.append(item[0])
         y_list.append(item[1])
-    return x_list, y_list
+        status_list.append(item[2])
+    return x_list, y_list, status_list
 
 
 def _sort_fun(item):
@@ -131,8 +133,8 @@ class TrendPanel(ttk.Frame):
 
         trend = Trend()
         for key, val in self._plot_dict.items():
-            x_list, y_list = _get_xy(val)
-            trend.add_data(x_list, y_list, key)
+            x_list, y_list, status_list = _get_xy(val)
+            trend.add_data(x_list, y_list, status_list, key)
 
         trend.show(title=self._name_var.get(), separately=self.get_separate())
 

@@ -15,7 +15,7 @@ def get_data_from_file(file_path: str):
                     result[key_value[0]] = key_value[1]
             if len(result) != 10:
                 raise Exception('Некорректный заголовок')
-            result["values"] = []
+            result['values'] = []
             f.readline()
             while True:
                 data = f.readline()
@@ -24,7 +24,8 @@ def get_data_from_file(file_path: str):
                 data = data.split(' | ')
                 if len(data) != 5:
                     raise Exception('Некорректные данные')
-                result["values"].append((datetime.datetime.fromtimestamp(float(data[1])), float(data[3])))
+                result["values"].append((datetime.datetime.fromtimestamp(float(data[1])), float(data[3]),
+                                         data[4].strip() != 'OK'))
         except Exception as e:
             error = str(e)
         finally:

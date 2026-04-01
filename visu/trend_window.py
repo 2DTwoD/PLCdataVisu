@@ -11,15 +11,16 @@ small_font_size = 8
 
 
 class Trend:
-    def __init__(self, x_data: list = None, y_data: list = None, name: str = None, show_flag: bool = False):
+    def __init__(self, x_data: list = None, y_data: list = None, status_data: list = None, name: str = None,
+                 show_flag: bool = False):
         self._all_data = []
-        if name is not None and x_data is not None and y_data is not None:
-            self.add_data(x_data, y_data, name)
+        if name is not None and x_data is not None and y_data is not None and status_data is not None:
+            self.add_data(x_data, y_data, status_data, name)
             if show_flag:
                 self.show()
 
-    def add_data(self, x_data: list, y_data: list, name: str):
-        self._all_data.append((x_data, y_data, name))
+    def add_data(self, x_data: list, y_data: list, status_data: list, name: str):
+        self._all_data.append((x_data, y_data, status_data, name))
 
     def show(self, title: str = None, separately: bool = True):
         try:
@@ -44,14 +45,15 @@ class Trend:
             for index, data in enumerate(self._all_data):
                 if separately:
                     axes = axes_list[index]
-                    axes.set_ylabel(data[2], fontsize=middle_font_size)
+                    axes.set_ylabel(data[3], fontsize=middle_font_size)
                     axes.grid()
                     # axes.tick_params(axis='x', labelbottom=True, labelsize=small_font_size)
-                marker = 'none'
+                mark_list = data[2]
                 if len(data[0]) == 1:
-                    marker = '.'
-                axes.plot(data[0], data[1], label=data[2], color=cmap(index), marker=marker, markersize=5)
-                y_lab += f'{data[2]}; '
+                    mark_list = None
+                axes.plot(data[0], data[1], label=data[3], color=cmap(index), marker='x', markersize=5,
+                          markevery=mark_list)
+                y_lab += f'{data[3]}; '
 
             if not separately:
                 axes.set_ylabel(y_lab, fontsize=middle_font_size)

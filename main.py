@@ -12,7 +12,7 @@ matplotlib.use('TkAgg')
 win_width = 900
 win_height = 900
 
-version = "1.0"
+version = "1.1"
 
 
 def main():
